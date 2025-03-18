@@ -1,205 +1,40 @@
 const express = require('express');
 const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session);
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const config = require('./config');
-
-// Import routes
-const inventoryRouter = require('./routes/inventory');
-const arenaRouter = require('./routes/arena');
 
 const app = express();
+const db = new sqlite3.Database('./db/database.sqlite');
 
-// Database setup
-const db = new sqlite3.Database(config.dbPath);
-
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
-app.set('view engine', 'ejs');
-
-// Session middleware
+// Session middleware configuration
 app.use(session({
-    store: new SQLiteStore({
-        dir: path.dirname(config.dbPath),
-        db: 'sessions.db',
-        table: 'sessions'
-    }),
-    secret: config.sessionSecret,
+    secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: {
-        secure: false, // Set to true only if using HTTPS
-        maxAge: 1000 * 60 * 60 * 24 // 24 hours
-    }
+    cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
+// View engine setup
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Routes
-app.get('/', (req, res) => {
-    if (!req.session.userId) {
-        res.render('login');
-        return;
-    }
+app.use('/arena', require('./routes/arena')(db));
 
-    // Get user stats from database
-    db.get(
-        `SELECT 
-            u.arena_rank,
-            u.campaign_progress,
-            (SELECT COUNT(*) FROM player_cards WHERE user_id = ?) as cardCount
-        FROM users u 
-        WHERE u.id = ?`,
-        [req.session.userId, req.session.userId],
-        (err, stats) => {
-            if (err) {
-                console.error('Database error:', err);
-                return res.status(500).send('Server error');
-            }
-
-            res.render('home', { 
-                username: req.session.username,
-                cardCount: stats ? stats.cardCount : 0,
-                arenaRank: stats ? stats.arena_rank : 1000,
-                campaignProgress: stats ? stats.campaign_progress : 0
-            });
-        }
-    );
-});
-
-app.use('/inventory', inventoryRouter(db));
-app.use('/arena', arenaRouter(db));
-app.use('/auth', require('./routes/auth')(db));
-
-// Initialize database tables
-function initDatabase() {
-    db.serialize(() => {
-        // Users table
-        db.run(`CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password TEXT,
-            gems INTEGER DEFAULT 1000,
-            arena_rank INTEGER DEFAULT 1000,
-            campaign_progress INTEGER DEFAULT 0,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
-
-        // Cards table
-        db.run(`CREATE TABLE IF NOT EXISTS cards (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            faction TEXT,
-            type TEXT,
-            base_power INTEGER,
-            attack_type TEXT,
-            attack_pattern TEXT,
-            element_type TEXT,
-            rarity TEXT,
-            is_hero BOOLEAN DEFAULT 0,
-            image_url TEXT
-        )`);
-
-        // Skills table
-        db.run(`CREATE TABLE IF NOT EXISTS skills (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            card_id INTEGER,
-            name TEXT,
-            description TEXT,
-            effect_type TEXT,
-            effect_value INTEGER,
-            FOREIGN KEY(card_id) REFERENCES cards(id)
-        )`);
-
-        // Player_cards table (inventory)
-        db.run(`CREATE TABLE IF NOT EXISTS player_cards (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            card_id INTEGER,
-            level INTEGER DEFAULT 1,
-            evolution INTEGER DEFAULT 1,
-            experience INTEGER DEFAULT 0,
-            skill_levels TEXT DEFAULT '{}',
-            skill_points INTEGER DEFAULT 0,
-            fusion_count INTEGER DEFAULT 0,
-            FOREIGN KEY(user_id) REFERENCES users(id),
-            FOREIGN KEY(card_id) REFERENCES cards(id)
-        )`);
-
-        // Card materials table
-        db.run(`CREATE TABLE IF NOT EXISTS player_materials (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            material_type TEXT,
-            rarity TEXT,
-            amount INTEGER DEFAULT 0,
-            FOREIGN KEY(user_id) REFERENCES users(id)
-        )`);
-
-        // Card skills table with levels
-        db.run(`CREATE TABLE IF NOT EXISTS card_skills (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            card_id INTEGER,
-            name TEXT,
-            description TEXT,
-            effect_type TEXT,
-            base_value INTEGER,
-            scaling_type TEXT,
-            scaling_stat TEXT,
-            max_level INTEGER DEFAULT 10,
-            FOREIGN KEY(card_id) REFERENCES cards(id)
-        )`);
-
-        // Gear table
-        db.run(`CREATE TABLE IF NOT EXISTS gear (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            type TEXT,
-            slot TEXT,
-            rarity TEXT,
-            faction TEXT,
-            stars INTEGER DEFAULT 1,
-            stat_multiplier FLOAT,
-            set_name TEXT
-        )`);
-
-        // Player_gear table
-        db.run(`CREATE TABLE IF NOT EXISTS player_gear (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            gear_id INTEGER,
-            level INTEGER DEFAULT 1,
-            FOREIGN KEY(user_id) REFERENCES users(id),
-            FOREIGN KEY(gear_id) REFERENCES gear(id)
-        )`);
-
-        // Decks table
-        db.run(`CREATE TABLE IF NOT EXISTS decks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            name TEXT,
-            hero_card_id INTEGER,
-            unit_cards TEXT,
-            FOREIGN KEY(user_id) REFERENCES users(id)
-        )`);
+// Error handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).render('error', {
+        message: 'Something went wrong!',
+        error: { status: 500, stack: process.env.NODE_ENV === 'development' ? err.stack : '' }
     });
-}
-
-initDatabase();
-
-app.listen(config.port, () => {
-    console.log(`Server running at http://localhost:${config.port}`);
 });
 
-
-
-
-
-
-
-
-
-
-
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
 
