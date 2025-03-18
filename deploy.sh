@@ -10,7 +10,6 @@ gh repo clone Zer0Krypt/CardCollector
 
 # Move the deploy script to the home directory
 sudo mv CardCollector/deploy.sh /home/cc/deploy.sh
-sleep 5
 
 # Create application directory
 sudo mkdir -p /var/www/card-battler
