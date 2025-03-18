@@ -21,8 +21,54 @@ app.set('views', path.join(__dirname, 'views'));
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Body parser middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Routes
 app.use('/arena', require('./routes/arena')(db));
+app.use('/auth', require('./routes/auth')(db));
+app.use('/cards', require('./routes/cards')(db));
+app.use('/campaign', require('./routes/campaign')(db));
+app.use('/inventory', require('./routes/inventory')(db));
+app.use('/gacha', require('./routes/gacha')(db));
+
+// Root route
+app.get('/', (req, res) => {
+    if (!req.session.userId) {
+        return res.render('login');
+    }
+
+    // Get user data for the dashboard
+    db.get(
+        `SELECT 
+            (SELECT COUNT(*) FROM player_cards WHERE user_id = ?) as cardCount,
+            (SELECT arena_rank FROM users WHERE id = ?) as arenaRank,
+            (SELECT COALESCE(ROUND(completed_stages * 100.0 / total_stages, 1), 0)
+             FROM (
+                 SELECT COUNT(*) as completed_stages,
+                        (SELECT COUNT(*) FROM campaign_stages) as total_stages
+                 FROM player_progress 
+                 WHERE user_id = ? AND stars > 0
+             )) as campaignProgress`,
+        [req.session.userId, req.session.userId, req.session.userId],
+        (err, stats) => {
+            if (err) {
+                return res.status(500).render('error', {
+                    message: 'Database error',
+                    error: { status: 500, stack: err.stack }
+                });
+            }
+
+            res.render('home', {
+                username: req.session.username,
+                cardCount: stats.cardCount || 0,
+                arenaRank: stats.arenaRank || 1000,
+                campaignProgress: stats.campaignProgress || 0
+            });
+        }
+    );
+});
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -37,4 +83,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
 
