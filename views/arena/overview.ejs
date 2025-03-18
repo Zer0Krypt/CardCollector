@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena - Card Battler</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="main-nav">
+            <div class="logo">Card Battler</div>
+            <div class="nav-items">
+                <a href="/inventory" class="nav-item">
+                    <i class="fas fa-boxes"></i>
+                    <span>Inventory</span>
+                </a>
+                <a href="/arena" class="nav-item active">
+                    <i class="fas fa-sword"></i>
+                    <span>Arena</span>
+                </a>
+                <a href="/campaign" class="nav-item">
+                    <i class="fas fa-map"></i>
+                    <span>Campaign</span>
+                </a>
+            </div>
+            <div class="user-info">
+                <span class="username">Welcome, <%= username %></span>
+                <a href="/auth/logout" class="logout-btn">Logout</a>
+            </div>
+        </nav>
+
+        <div class="arena-container">
+            <h1>Arena</h1>
+            <div class="arena-stats">
+                <div class="stat-box">
+                    <h3>Current Rank</h3>
+                    <p><%= arenaRank %></p>
+                </div>
+                <div class="stat-box">
+                    <h3>Wins</h3>
+                    <p><%= arenaWins %></p>
+                </div>
+                <div class="stat-box">
+                    <h3>Losses</h3>
+                    <p><%= arenaLosses %></p>
+                </div>
+            </div>
+            <div class="arena-actions">
+                <button class="btn-primary" onclick="startMatch()">Start Match</button>
+            </div>
+        </div>
+    </div>
+    <script src="/js/arena.js"></script>
+</body>
+</html>

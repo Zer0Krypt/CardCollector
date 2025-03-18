@@ -7,6 +7,7 @@ const config = require('./config');
 
 // Import routes
 const inventoryRouter = require('./routes/inventory');
+const arenaRouter = require('./routes/arena');
 
 const app = express();
 
@@ -68,6 +69,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/inventory', inventoryRouter(db));
+app.use('/arena', arenaRouter(db));
 app.use('/auth', require('./routes/auth')(db));
 
 // Initialize database tables
@@ -189,6 +191,7 @@ initDatabase();
 app.listen(config.port, () => {
     console.log(`Server running at http://localhost:${config.port}`);
 });
+
 
 
 
