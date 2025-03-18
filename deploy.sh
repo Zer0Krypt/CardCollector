@@ -6,7 +6,7 @@ sudo rm -rf card-battler
 
 # Clone the repository
 cd /home/cc
-sudo gh repo clone Zer0Krypt/CardCollector
+gh repo clone Zer0Krypt/CardCollector
 
 # Move the deploy script to the home directory
 sudo mv CardCollector/deploy.sh /home/cc/deploy.sh
