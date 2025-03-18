@@ -21,10 +21,13 @@ Description=Card Battler Game
 After=network.target
 
 [Service]
-Type=simple
-User=$USER
-WorkingDirectory=/var/www/card-battler
+Type=forking
+User=cc
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=PM2_HOME=/home/cc/.pm2
+WorkingDirectory=/home/cc/CardCollector
 ExecStart=/usr/bin/pm2 start server.js --name card-battler
+ExecStop=/usr/bin/pm2 stop card-battler
 Restart=on-failure
 
 [Install]
