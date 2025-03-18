@@ -22,33 +22,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // Form submissions
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const formData = new FormData(registerForm);
+        console.log('Registration form submitted');
         
-        if (formData.get('password') !== formData.get('confirmPassword')) {
+        const formData = new FormData(registerForm);
+        const username = formData.get('username');
+        const password = formData.get('password');
+        const confirmPassword = formData.get('confirmPassword');
+        
+        console.log('Form data:', { username, password: '***', confirmPassword: '***' });
+        
+        if (password !== confirmPassword) {
             alert('Passwords do not match');
             return;
         }
 
         try {
+            console.log('Sending registration request...');
             const response = await fetch('/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    username: formData.get('username'),
-                    password: formData.get('password')
+                    username,
+                    password
                 })
             });
 
+            console.log('Response status:', response.status);
             const data = await response.json();
+            console.log('Response data:', data);
+
             if (data.success) {
                 window.location.href = '/';
             } else {
-                alert(data.error);
+                alert(data.error || 'Registration failed');
             }
         } catch (error) {
-            alert('Registration failed');
+            console.error('Registration error:', error);
+            alert('Registration failed: ' + error.message);
         }
     });
 
@@ -79,3 +91,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+

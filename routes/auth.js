@@ -28,24 +28,58 @@ module.exports = (db) => {
 
     // Register route
     router.post('/register', async (req, res) => {
+        console.log('Register route hit:', req.body);
+        
         const { username, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        if (!username || !password) {
+            console.log('Missing username or password');
+            return res.status(400).json({ error: 'Username and password are required' });
+        }
 
-        db.run('INSERT INTO users (username, password) VALUES (?, ?)',
-            [username, hashedPassword],
-            function(err) {
+        try {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            
+            // First check if user exists
+            db.get('SELECT id FROM users WHERE username = ?', [username], (err, existingUser) => {
                 if (err) {
-                    if (err.message.includes('UNIQUE')) {
-                        return res.status(400).json({ error: 'Username already exists' });
-                    }
+                    console.error('Database error checking user:', err);
                     return res.status(500).json({ error: 'Database error' });
                 }
+                
+                if (existingUser) {
+                    console.log('Username already exists:', username);
+                    return res.status(400).json({ error: 'Username already exists' });
+                }
 
-                req.session.userId = this.lastID;
-                req.session.username = username;
-                res.json({ success: true });
-            }
-        );
+                // Create new user
+                db.run('INSERT INTO users (username, password) VALUES (?, ?)',
+                    [username, hashedPassword],
+                    function(err) {
+                        if (err) {
+                            console.error('Database error creating user:', err);
+                            return res.status(500).json({ error: 'Database error' });
+                        }
+
+                        console.log('User created successfully:', this.lastID);
+                        
+                        // Set session
+                        req.session.userId = this.lastID;
+                        req.session.username = username;
+                        
+                        // Send success response
+                        res.json({ 
+                            success: true,
+                            userId: this.lastID,
+                            username: username
+                        });
+                    }
+                );
+            });
+        } catch (error) {
+            console.error('Registration error:', error);
+            res.status(500).json({ error: 'Registration failed' });
+        }
     });
 
     // Logout route

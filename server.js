@@ -15,8 +15,11 @@ const db = new sqlite3.Database(config.dbPath);
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
+
+// Session middleware
 app.use(session({
     store: new SQLiteStore({
         dir: path.dirname(config.dbPath),
@@ -27,7 +30,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: config.environment === 'production',
+        secure: false, // Set to true only if using HTTPS
         maxAge: 1000 * 60 * 60 * 24 // 24 hours
     }
 }));
@@ -163,6 +166,7 @@ initDatabase();
 app.listen(config.port, () => {
     console.log(`Server running at http://localhost:${config.port}`);
 });
+
 
 
 
