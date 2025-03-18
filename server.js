@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session);
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const config = require('./config');
@@ -17,6 +18,11 @@ app.use(express.json());
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.use(session({
+    store: new SQLiteStore({
+        dir: path.dirname(config.dbPath),
+        db: 'sessions.db',
+        table: 'sessions'
+    }),
     secret: config.sessionSecret,
     resave: false,
     saveUninitialized: false,
@@ -156,6 +162,7 @@ initDatabase();
 app.listen(config.port, () => {
     console.log(`Server running at http://localhost:${config.port}`);
 });
+
 
 
 

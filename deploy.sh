@@ -34,14 +34,14 @@ Description=Card Battler Game
 After=network.target
 
 [Service]
-Type=forking
+Type=simple
 User=cc
-Environment=PATH=/usr/bin:/usr/local/bin
-Environment=PM2_HOME=/home/cc/.pm2
-WorkingDirectory=/home/cc/CardCollector
-ExecStart=/usr/bin/pm2 start server.js --name card-battler
-ExecStop=/usr/bin/pm2 stop card-battler
-Restart=on-failure
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=DB_PATH=/var/www/card-battler/data/database.sqlite
+WorkingDirectory=/var/www/card-battler
+ExecStart=/usr/bin/node server.js
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
