@@ -1,5 +1,9 @@
 #!/bin/bash
 
+cd /home/cc/CardCollector
+sudo git clean -fd
+sudo gh repo sync
+
 # Create application directory
 sudo mkdir -p /var/www/card-battler
 sudo cp -r /home/cc/CardCollector/* /var/www/card-battler/
@@ -67,7 +71,11 @@ sudo systemctl restart nginx
 
 # Setup SSL with Certbot (optional but recommended)
 sudo apt install -y certbot python3-certbot-nginx
-#sudo certbot --nginx -d your_domain.com
+sudo certbot --nginx -d your_domain.com
 
 # Set proper permissions
 sudo chown -R $USER:$USER /var/www/card-battler
+
+#cleanup
+sudo cd /home/cc/CardCollector/
+find . -mindepth 1 ! -path "./deploy.sh" -exec rm -rf {} +
