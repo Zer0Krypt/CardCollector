@@ -8,29 +8,58 @@ module.exports = (db) => {
         const { username, password } = req.body;
         console.log('Login attempt for username:', username);
         
+        // First, let's verify we're getting the credentials
+        if (!username || !password) {
+            console.log('Missing credentials');
+            return res.status(400).json({ error: 'Username and password are required' });
+        }
+
+        // Let's log the query we're about to make
+        console.log('Querying database for user:', username);
+        
         db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
             if (err) {
                 console.error('Database error during login:', err);
                 return res.status(500).json({ error: 'Database error' });
             }
+
+            console.log('Database response:', user ? 'User found' : 'User not found');
+            
             if (!user) {
-                console.log('User not found:', username);
-                return res.status(401).json({ error: 'User not found' });
+                return res.status(401).json({ error: 'Invalid username or password' });
             }
 
             try {
+                console.log('Comparing passwords...');
                 const validPassword = await bcrypt.compare(password, user.password);
                 console.log('Password validation result:', validPassword);
                 
                 if (!validPassword) {
-                    return res.status(401).json({ error: 'Invalid password' });
+                    return res.status(401).json({ error: 'Invalid username or password' });
                 }
 
+                // Set session data
                 req.session.userId = user.id;
                 req.session.username = user.username;
-                console.log('Session set:', req.session);
                 
-                res.json({ success: true });
+                // Save session explicitly
+                req.session.save((err) => {
+                    if (err) {
+                        console.error('Session save error:', err);
+                        return res.status(500).json({ error: 'Session error' });
+                    }
+                    
+                    console.log('Login successful. Session data:', {
+                        userId: req.session.userId,
+                        username: req.session.username
+                    });
+                    
+                    res.json({ 
+                        success: true,
+                        userId: user.id,
+                        username: user.username
+                    });
+                });
             } catch (error) {
                 console.error('Password comparison error:', error);
                 res.status(500).json({ error: 'Login failed' });
@@ -115,4 +144,5 @@ module.exports = (db) => {
 
     return router;
 };
+
 

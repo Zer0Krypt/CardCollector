@@ -63,6 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(loginForm);
+        const username = formData.get('username');
+        const password = formData.get('password');
+
+        console.log('Attempting login for username:', username);
 
         try {
             const response = await fetch('/auth/login', {
@@ -70,18 +74,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    username: formData.get('username'),
-                    password: formData.get('password')
-                })
+                body: JSON.stringify({ username, password })
             });
 
+            console.log('Login response status:', response.status);
+            
             const data = await response.json();
-            console.log('Login response:', data);
+            console.log('Login response data:', data);
 
             if (data.success) {
+                console.log('Login successful, redirecting...');
                 window.location.href = '/';
             } else {
+                console.error('Login failed:', data.error);
                 alert(data.error || 'Login failed');
             }
         } catch (error) {
@@ -90,5 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 
 

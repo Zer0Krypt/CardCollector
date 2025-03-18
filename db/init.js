@@ -63,6 +63,18 @@ db.serialize(() => {
             required_level INTEGER DEFAULT 1
         )
     `);
+
+    // Add this after your table creation
+    db.get("SELECT * FROM users WHERE username = ?", ['test1'], (err, row) => {
+        if (err) {
+            console.error('Database verification error:', err);
+        } else {
+            console.log('Database verification - test1 user:', row ? 'exists' : 'does not exist');
+            if (row) {
+                console.log('User ID:', row.id);
+            }
+        }
+    });
 });
 
 module.exports = db;
