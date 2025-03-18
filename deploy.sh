@@ -64,7 +64,6 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
-    # Add error logging
     error_log /var/log/nginx/card-battler-error.log;
     access_log /var/log/nginx/card-battler-access.log;
 }
@@ -75,6 +74,7 @@ sudo apt install -y nginx
 
 # Enable the site
 sudo ln -s /etc/nginx/sites-available/card-battler /etc/nginx/sites-enabled/
+sudo nginx -t
 
 # Start services
 sudo systemctl daemon-reload
