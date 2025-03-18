@@ -5,9 +5,11 @@ cd /var/www
 sudo rm -rf card-battler
 
 # Clone the repository
-cd /home/cc/CardCollector
-sudo git clean -fd
-gh repo sync
+cd /home/cc
+sudo gh repo clone Zer0Krypt/CardCollector
+
+# Move the deploy script to the home directory
+sudo mv CardCollector/deploy.sh /home/cc/deploy.sh
 
 # Create application directory
 sudo mkdir -p /var/www/card-battler
@@ -82,5 +84,5 @@ sudo apt install -y certbot python3-certbot-nginx
 sudo chown -R $USER:$USER /var/www/card-battler
 
 #cleanup
-cd /home/cc/CardCollector/
-find . -mindepth 1 ! -path "./deploy.sh" -exec rm -rf {} +
+cd /home/cc
+sudo rm -rf CardCollector
