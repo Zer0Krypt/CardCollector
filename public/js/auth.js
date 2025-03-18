@@ -74,7 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password }),
+                credentials: 'same-origin' // Important for session cookies
             });
 
             console.log('Login response status:', response.status);
@@ -84,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 console.log('Login successful, redirecting...');
-                window.location.href = '/';
+                window.location.replace('/'); // Use replace instead of href
             } else {
                 console.error('Login failed:', data.error);
                 alert(data.error || 'Login failed');
@@ -95,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 
 
 

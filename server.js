@@ -17,7 +17,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Set to false for development/HTTP
         maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
     }
 }));
@@ -33,6 +33,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Debug middleware to log session data
+app.use((req, res, next) => {
+    console.log('Session data:', req.session);
+    next();
+});
+
 // Routes
 app.use('/arena', require('./routes/arena')(db));
 app.use('/auth', require('./routes/auth')(db));
@@ -43,7 +49,10 @@ app.use('/gacha', require('./routes/gacha')(db));
 
 // Root route
 app.get('/', (req, res) => {
+    console.log('Root route accessed. Session:', req.session);
+    
     if (!req.session.userId) {
+        console.log('No session, redirecting to login');
         return res.render('login');
     }
 
@@ -62,12 +71,14 @@ app.get('/', (req, res) => {
         [req.session.userId, req.session.userId, req.session.userId],
         (err, stats) => {
             if (err) {
+                console.error('Database error:', err);
                 return res.status(500).render('error', {
                     message: 'Database error',
                     error: { status: 500, stack: err.stack }
                 });
             }
 
+            console.log('Rendering home page for user:', req.session.username);
             res.render('home', {
                 username: req.session.username,
                 cardCount: stats.cardCount || 0,
@@ -91,6 +102,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
 
 
 
