@@ -1,16 +1,25 @@
 const express = require('express');
 const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session);
 const path = require('path');
-const db = require('./db/init'); // Updated to use the initialized database
+const db = require('./db/init');
 
 const app = express();
 
-// Session middleware configuration
+// Session middleware configuration with SQLite store
 app.use(session({
-    secret: 'your-secret-key',
+    store: new SQLiteStore({
+        dir: './db',
+        db: 'sessions.sqlite',
+        table: 'sessions'
+    }),
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production' }
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
+    }
 }));
 
 // View engine setup
@@ -82,6 +91,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
 
 
 
