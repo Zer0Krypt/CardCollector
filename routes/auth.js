@@ -6,23 +6,35 @@ module.exports = (db) => {
     // Login route
     router.post('/login', async (req, res) => {
         const { username, password } = req.body;
+        console.log('Login attempt for username:', username);
         
         db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
             if (err) {
+                console.error('Database error during login:', err);
                 return res.status(500).json({ error: 'Database error' });
             }
             if (!user) {
+                console.log('User not found:', username);
                 return res.status(401).json({ error: 'User not found' });
             }
 
-            const validPassword = await bcrypt.compare(password, user.password);
-            if (!validPassword) {
-                return res.status(401).json({ error: 'Invalid password' });
-            }
+            try {
+                const validPassword = await bcrypt.compare(password, user.password);
+                console.log('Password validation result:', validPassword);
+                
+                if (!validPassword) {
+                    return res.status(401).json({ error: 'Invalid password' });
+                }
 
-            req.session.userId = user.id;
-            req.session.username = user.username;
-            res.json({ success: true });
+                req.session.userId = user.id;
+                req.session.username = user.username;
+                console.log('Session set:', req.session);
+                
+                res.json({ success: true });
+            } catch (error) {
+                console.error('Password comparison error:', error);
+                res.status(500).json({ error: 'Login failed' });
+            }
         });
     });
 
@@ -61,17 +73,26 @@ module.exports = (db) => {
                             return res.status(500).json({ error: 'Database error' });
                         }
 
-                        console.log('User created successfully:', this.lastID);
+                        const userId = this.lastID;
+                        console.log('User created successfully:', userId);
                         
                         // Set session
-                        req.session.userId = this.lastID;
+                        req.session.userId = userId;
                         req.session.username = username;
                         
-                        // Send success response
-                        res.json({ 
-                            success: true,
-                            userId: this.lastID,
-                            username: username
+                        // Save session explicitly
+                        req.session.save((err) => {
+                            if (err) {
+                                console.error('Session save error:', err);
+                                return res.status(500).json({ error: 'Session error' });
+                            }
+                            
+                            // Send success response
+                            res.json({ 
+                                success: true,
+                                userId: userId,
+                                username: username
+                            });
                         });
                     }
                 );
@@ -84,9 +105,14 @@ module.exports = (db) => {
 
     // Logout route
     router.get('/logout', (req, res) => {
-        req.session.destroy();
-        res.redirect('/');
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Logout error:', err);
+            }
+            res.redirect('/');
+        });
     });
 
     return router;
 };
+

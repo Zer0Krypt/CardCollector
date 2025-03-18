@@ -29,15 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = formData.get('password');
         const confirmPassword = formData.get('confirmPassword');
         
-        console.log('Form data:', { username, password: '***', confirmPassword: '***' });
-        
         if (password !== confirmPassword) {
             alert('Passwords do not match');
             return;
         }
 
         try {
-            console.log('Sending registration request...');
             const response = await fetch('/auth/register', {
                 method: 'POST',
                 headers: {
@@ -49,9 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
-            console.log('Response status:', response.status);
             const data = await response.json();
-            console.log('Response data:', data);
+            console.log('Registration response:', data);
 
             if (data.success) {
                 window.location.href = '/';
@@ -81,14 +77,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await response.json();
+            console.log('Login response:', data);
+
             if (data.success) {
                 window.location.href = '/';
             } else {
-                alert(data.error);
+                alert(data.error || 'Login failed');
             }
         } catch (error) {
-            alert('Login failed');
+            console.error('Login error:', error);
+            alert('Login failed: ' + error.message);
         }
     });
 });
+
 
