@@ -5,62 +5,29 @@ module.exports = (db) => {
     // Get inventory overview with filters and sorting
     router.get('/', async (req, res) => {
         const userId = req.session.userId;
-        const { sort = 'rarity', filter, page = 1 } = req.query;
+        if (!userId) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
+        const { sort = 'rarity', filter = '', page = 1 } = req.query;
         const limit = 20;
         const offset = (page - 1) * limit;
 
-        let query = `
-            SELECT 
-                pc.*,
-                c.name,
-                c.faction,
-                c.type,
-                c.base_power,
-                c.attack_type,
-                c.attack_pattern,
-                c.element_type,
-                c.rarity,
-                c.is_hero,
-                c.image_url
-            FROM player_cards pc
-            JOIN cards c ON pc.card_id = c.id
-            WHERE pc.user_id = ?
-        `;
-
-        const params = [userId];
-
-        if (filter) {
-            query += ` AND (c.type = ? OR c.faction = ? OR c.rarity = ?)`;
-            params.push(filter, filter, filter);
-        }
-
-        query += ` ORDER BY c.${sort} DESC LIMIT ? OFFSET ?`;
-        params.push(limit, offset);
-
         try {
-            const cards = await new Promise((resolve, reject) => {
-                db.all(query, params, (err, rows) => {
-                    if (err) reject(err);
-                    else resolve(rows);
-                });
-            });
+            // First, check if the sort column is valid to prevent SQL injection
+            const validSortColumns = ['rarity', 'level', 'base_power', 'name'];
+            if (!validSortColumns.includes(sort)) {
+                return res.status(400).json({ error: 'Invalid sort parameter' });
+            }
 
-            // Get total count for pagination
-            const countResult = await new Promise((resolve, reject) => {
-                db.get('SELECT COUNT(*) as total FROM player_cards WHERE user_id = ?', 
-                    [userId], (err, row) => {
-                        if (err) reject(err);
-                        else resolve(row);
-                    });
+            // Render the inventory page instead of returning JSON
+            return res.render('inventory', {
+                username: req.session.username
             });
-
-            res.json({
-                cards,
-                totalPages: Math.ceil(countResult.total / limit),
-                currentPage: page
-            });
+            
         } catch (error) {
-            res.status(500).json({ error: 'Database error' });
+            console.error('Database error:', error);
+            return res.status(500).json({ error: 'Database error' });
         }
     });
 

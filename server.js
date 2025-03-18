@@ -4,6 +4,14 @@ const SQLiteStore = require('connect-sqlite3')(session);
 const path = require('path');
 const db = require('./db/init');
 
+db.on('open', () => {
+    console.log('Database connection established');
+});
+
+db.on('error', (err) => {
+    console.error('Database error:', err);
+});
+
 const app = express();
 
 // Session middleware configuration with SQLite store
@@ -102,6 +110,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
 
 
 
