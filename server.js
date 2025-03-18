@@ -1,10 +1,9 @@
 const express = require('express');
 const session = require('express-session');
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const db = require('./db/init'); // Updated to use the initialized database
 
 const app = express();
-const db = new sqlite3.Database('./db/database.sqlite');
 
 // Session middleware configuration
 app.use(session({
@@ -83,5 +82,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
 
 
