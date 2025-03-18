@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - Card Battler</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <%- include('partials/nav') %>
+
+        <div class="inventory-container">
+            <div class="inventory-header">
+                <h2>Card Inventory</h2>
+                <div class="inventory-controls">
+                    <select id="sortSelect">
+                        <option value="rarity">Sort by Rarity</option>
+                        <option value="level">Sort by Level</option>
+                        <option value="base_power">Sort by Power</option>
+                        <option value="name">Sort by Name</option>
+                    </select>
+                    <select id="filterSelect">
+                        <option value="">All Cards</option>
+                        <option value="Warrior">Warriors</option>
+                        <option value="Mage">Mages</option>
+                        <option value="legendary">Legendary</option>
+                        <option value="epic">Epic</option>
+                        <option value="rare">Rare</option>
+                        <option value="common">Common</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="inventory-stats">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+
+            <div class="cards-grid">
+                <!-- Cards will be populated by JavaScript -->
+            </div>
+
+            <div class="pagination">
+                <!-- Pagination will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/inventory.js"></script>
+</body>
+</html>

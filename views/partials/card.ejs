@@ -1,0 +1,41 @@
+<div class="card <%= card.rarity.toLowerCase() %>" data-card-id="<%= card.id %>">
+    <div class="card-header">
+        <span class="card-name"><%= card.name %></span>
+        <span class="card-type"><%= card.type %></span>
+    </div>
+    
+    <div class="card-image">
+        <img src="<%= card.image_url %>" alt="<%= card.name %>" loading="lazy">
+        <div class="card-power" data-base-power="<%= card.base_power %>">
+            <%= Math.floor(card.base_power * (1 + (card.evolution - 1) * 0.2)) %>
+        </div>
+        <div class="card-element <%= card.element_type.toLowerCase() %>">
+            <i class="element-icon"></i>
+        </div>
+    </div>
+    
+    <div class="card-stats">
+        <div class="stat-item">
+            <div class="level">LV. <%= card.level %></div>
+            <div class="exp-container">
+                <div class="exp-bar" style="width: <%= (card.experience % 100) %>%" 
+                     title="<%= card.experience %> / <%= Math.pow(card.level, 2) * 100 %> EXP">
+                </div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="evolution"><%= '★'.repeat(card.evolution) %></div>
+        </div>
+    </div>
+
+    <div class="card-actions">
+        <button class="card-btn level-up-btn" 
+                <%= card.level >= 20 ? 'disabled' : '' %>>
+            Level Up
+        </button>
+        <button class="card-btn evolve-btn" 
+                <%= (card.level < 20 || card.evolution >= getMaxEvolution(card.rarity)) ? 'disabled' : '' %>>
+            Evolve
+        </button>
+    </div>
+</div>

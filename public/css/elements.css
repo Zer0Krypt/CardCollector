@@ -1,0 +1,33 @@
+/* Element Icons */
+.element-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.earth .element-icon {
+    background-image: url('/images/elements/earth.svg');
+}
+
+.fire .element-icon {
+    background-image: url('/images/elements/fire.svg');
+}
+
+.water .element-icon {
+    background-image: url('/images/elements/water.svg');
+}
+
+.wind .element-icon {
+    background-image: url('/images/elements/wind.svg');
+}
+
+.light .element-icon {
+    background-image: url('/images/elements/light.svg');
+}
+
+.dark .element-icon {
+    background-image: url('/images/elements/dark.svg');
+}

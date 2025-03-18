@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Campaign - Card Battler</title>
+    <link rel="stylesheet" href="/css/campaign.css">
+</head>
+<body>
+    <div class="campaign-container">
+        <h1>Campaign Mode</h1>
+        <div class="chapters-container">
+            <% chapters.forEach(chapter => { %>
+                <div class="chapter-card <%= progress.lastCompletedChapter >= chapter.id ? 'completed' : '' %>">
+                    <h2><%= chapter.name %></h2>
+                    <p><%= chapter.description %></p>
+                    <div class="chapter-progress">
+                        <% const chapterStars = Object.entries(progress.stars)
+                            .filter(([stageId]) => stageId.startsWith(chapter.id + '-'))
+                            .reduce((sum, [_, stars]) => sum + stars, 0); %>
+                        <span class="stars">★ <%= chapterStars %></span>
+                    </div>
+                    <a href="/campaign/chapter/<%= chapter.id %>" class="chapter-button">
+                        Enter Chapter
+                    </a>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+    <script src="/js/campaign.js"></script>
+</body>
+</html>

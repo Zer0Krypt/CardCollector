@@ -1,0 +1,33 @@
+<div class="card-details">
+    <div class="card-skills">
+        <h3>Skills</h3>
+        <% card.skills.forEach((skill, index) => { %>
+            <div class="skill" data-skill-id="<%= index %>">
+                <div class="skill-header">
+                    <span class="skill-name"><%= skill.name %></span>
+                    <span class="skill-level">Lv. <%= skillLevels[index] || 1 %></span>
+                </div>
+                <div class="skill-description"><%= skill.description %></div>
+                <div class="skill-effect">
+                    Current Effect: <%= CardService.calculateSkillEffect(skill, skillLevels[index] || 1) %>%
+                </div>
+                <button class="upgrade-skill-btn" 
+                        data-card-id="<%= card.id %>" 
+                        data-skill-id="<%= index %>"
+                        <%= card.skill_points < (skillLevels[index] || 1) + 1 ? 'disabled' : '' %>>
+                    Upgrade (Cost: <%= (skillLevels[index] || 1) + 1 %> SP)
+                </button>
+            </div>
+        <% }); %>
+    </div>
+
+    <div class="card-fusion">
+        <h3>Fusion</h3>
+        <div class="fusion-stats">
+            <div>Fusion Count: <%= card.fusion_count %></div>
+            <div>Experience: <%= card.experience %></div>
+        </div>
+        <button class="fuse-btn" data-card-id="<%= card.id %>">Fuse Cards</button>
+        <button class="dismantle-btn" data-card-id="<%= card.id %>">Dismantle</button>
+    </div>
+</div>

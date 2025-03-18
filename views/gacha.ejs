@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Summon - Card Battler</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <%- include('partials/nav') %>
+        
+        <div class="gacha-container">
+            <div class="gems-info">
+                <span class="gems-count"><%= gems %> Gems</span>
+            </div>
+            
+            <div class="summon-options">
+                <button class="summon-btn single-pull" data-cost="100">
+                    Single Pull
+                    <span class="cost">100 Gems</span>
+                </button>
+                
+                <button class="summon-btn multi-pull" data-cost="1000">
+                    10+1 Pull
+                    <span class="cost">1000 Gems</span>
+                    <span class="bonus">Guaranteed Rare+</span>
+                </button>
+            </div>
+
+            <div class="pull-results" style="display: none;">
+                <div class="results-container"></div>
+                <button class="close-results">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/gacha.js"></script>
+</body>
+</html>
