@@ -41,9 +41,30 @@ app.get('/', (req, res) => {
         res.render('login');
         return;
     }
-    res.render('home', { 
-        username: req.session.username 
-    });
+
+    // Get user stats from database
+    db.get(
+        `SELECT 
+            u.arena_rank,
+            u.campaign_progress,
+            (SELECT COUNT(*) FROM player_cards WHERE user_id = ?) as cardCount
+        FROM users u 
+        WHERE u.id = ?`,
+        [req.session.userId, req.session.userId],
+        (err, stats) => {
+            if (err) {
+                console.error('Database error:', err);
+                return res.status(500).send('Server error');
+            }
+
+            res.render('home', { 
+                username: req.session.username,
+                cardCount: stats ? stats.cardCount : 0,
+                arenaRank: stats ? stats.arena_rank : 1000,
+                campaignProgress: stats ? stats.campaign_progress : 0
+            });
+        }
+    );
 });
 
 app.use('/inventory', inventoryRouter(db));
@@ -168,6 +189,7 @@ initDatabase();
 app.listen(config.port, () => {
     console.log(`Server running at http://localhost:${config.port}`);
 });
+
 
 
 
