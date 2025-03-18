@@ -77,5 +77,5 @@ sudo apt install -y certbot python3-certbot-nginx
 sudo chown -R $USER:$USER /var/www/card-battler
 
 #cleanup
-sudo cd /home/cc/CardCollector/
+cd /home/cc/CardCollector/
 find . -mindepth 1 ! -path "./deploy.sh" -exec rm -rf {} +
