@@ -4,6 +4,9 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const config = require('./config');
 
+// Import routes
+const inventoryRouter = require('./routes/inventory');
+
 const app = express();
 
 // Database setup
@@ -153,6 +156,7 @@ initDatabase();
 app.listen(config.port, () => {
     console.log(`Server running at http://localhost:${config.port}`);
 });
+
 
 
 

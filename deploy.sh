@@ -1,14 +1,16 @@
 #!/bin/bash
 
 # Create application directory
-mkdir -p /var/www/card-battler
+sudo mkdir -p /var/www/card-battler
+sudo cp -r /home/cc/CardCollector/* /var/www/card-battler/
+sudo chown -R cc:cc /var/www/card-battler
 cd /var/www/card-battler
 
 # Install PM2 globally for process management
 sudo npm install -y pm2 -g
 
 # Install application dependencies
-npm install
+sudo npm install
 
 # Create and set permissions for the database directory
 sudo mkdir -p /var/www/card-battler/data
@@ -58,13 +60,14 @@ sudo apt install -y nginx
 sudo ln -s /etc/nginx/sites-available/card-battler /etc/nginx/sites-enabled/
 
 # Start services
+sudo systemctl daemon-reload
 sudo systemctl enable card-battler
-sudo systemctl start card-battler
+sudo systemctl restart card-battler
 sudo systemctl restart nginx
 
 # Setup SSL with Certbot (optional but recommended)
 sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d your_domain.com
+#sudo certbot --nginx -d your_domain.com
 
 # Set proper permissions
 sudo chown -R $USER:$USER /var/www/card-battler
