@@ -41,7 +41,9 @@ app.get('/', (req, res) => {
         res.render('login');
         return;
     }
-    res.render('home');
+    res.render('home', { 
+        username: req.session.username 
+    });
 });
 
 app.use('/inventory', inventoryRouter(db));
@@ -166,6 +168,7 @@ initDatabase();
 app.listen(config.port, () => {
     console.log(`Server running at http://localhost:${config.port}`);
 });
+
 
 
 
