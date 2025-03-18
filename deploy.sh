@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Prep Cleanup
+cd /var/www
+sudo rm -rf card-battler
+
+# Clone the repository
 cd /home/cc/CardCollector
 sudo git clean -fd
 gh repo sync
